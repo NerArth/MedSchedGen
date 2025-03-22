@@ -23,6 +23,20 @@
         border-top-width: 4px;
         border-bottom-width: 4px;
       }
+      .controls-sub {
+        margin:6px;
+        border: 1px lightgrey;
+        border-style: ridge;
+      }
+      .controls-sub:not(#submitcontrols) {
+        text-align: left;
+      }
+      input[type="date"], input[type="number"], select {
+        padding: 4px;
+        margin: 4px;
+        border: 3px solid lightgrey;
+        border-radius: 3px;
+      }
       table {
         table-layout: fixed;
         width: 100%;
@@ -75,7 +89,15 @@
         background-color: #ededed;
       }
       input:not(:placeholder-shown) {
-        background-color: transparent;
+        background-color: white;
+      }
+      select#weekdisplay-options {
+        background-color: white;
+      }
+      select#weekdisplay-options option[value="none"] { 
+        background-color: lightgrey;
+        font-family: monospace;
+        font-variant: small-caps;
       }
     </style>
   </head>
@@ -87,27 +109,33 @@
     </div>
     <h2 style="margin-top:0px;">Medication Schedule</h2>
     <div class="controls noprint">
-      <p style="text-align:center;">
-        <strong>NOTE:</strong> Dashed line boxes are hidden when printing a physical document!
+      <h2 style="margin-bottom: 4px;">Settings</h2>
+      <p style="text-align:center; margin-top: 0; font-size:0.75em;">
+        <strong>NOTE:</strong> <i>Anything inside dashed boxes is not printed out in a physical document!</i>
       </p>
-      <div class="noprint" style="padding:10px">
-        <label for="start-date">Start Date:</label><input id="start-date" type="date">
-        <label for="end-date">End Date:</label><input id="end-date" type="date">
+      <div id="datecontrols" class="controls-sub noprint" style="padding:10px">
         <label for="date-locale">Date format:</label><select name="date-locale" id="date-locale">
         	<option value="en-GB">UK/Europe - dd/mm/yyyy (en-GB)(default)</option>
         	<option value="en-US">USA - mm/dd/yyyy (en-US)</option>
         </select>
-        <input type="checkbox" id="weekdisplay-toggle" name="weekoption" checked><label for="weekdisplay-toggle">Add "week starting on..."</label>
+        <br>
+        <label for="start-date">Start Date:</label><input id="start-date" type="date">
+        <label for="end-date">End Date:</label><input id="end-date" type="date">
+        <!-- <input type="checkbox" id="weekdisplay-toggle" name="weekoption" checked><label for="weekdisplay-toggle">Add "week starting on..."</label> -->
+        <label for="weekdisplay-options">Time period label:</label><select name="weekdisplay" id="weekdisplay-options" placeholder="none">
+          <option value="none" selected>(None)</option>
+          <option value="custom" selected>Custom</option>
+          <option value="weekstarting">Week starting on...</option>
+        </select>
       </div>
-      <div class="noprint" style="padding:10px">
+      <div id="dosecontrols" class="controls-sub noprint" style="padding:10px">
         <label for="dose">Dosage (mg):</label><input id="dose" type="number" placeholder="n/a">
         <label for="dose-increment">Change (mg):</label><input id="dose-increment" type="number" placeholder="n/a">
-      </div>
-      <div class="noprint" style="padding:10px">
+        <br>
         <label for="dose-increment-times"># of dose changes:</label><input id="dose-increment-times" type="number" placeholder="n/a">
       	<label for="dose-period">Days on each dose:</label><input id="dose-period" type="number" placeholder="n/a">
       </div>
-      <div class="noprint" style="padding:10px">
+      <div id="submitcontrols" class="controls-sub noprint" style="padding:10px">
         <button onclick="generateFromInputs()">Generate Table</button>
       </div>
     </div>
@@ -171,7 +199,7 @@
         let doseIteration = 0;
         
         while (currentDate <= endDate) {
-          if (weeklyDisplay){
+          if (weeklyDisplay=="weekstarting"){
             // Table Header (Week Start)
             let thead = document.createElement("thead");
             let headerRow = document.createElement("tr");
@@ -234,10 +262,11 @@
 			
       function generateFromInputs() {
         // date inputs
+        //document.getElementById("start-date").value = new Date();
         const startDateInput = document.getElementById("start-date").value;
         const endDateInput = document.getElementById("end-date").value;
         const dateLocaleInput = document.getElementById("date-locale").value;
-        const weeklyDisplayInput = document.getElementById("weekdisplay-toggle").checked;
+        const weeklyDisplayInput = document.getElementById("weekdisplay-options").value;
         
         // dosage inputs
         const doseInput = document.getElementById("dose").value;
