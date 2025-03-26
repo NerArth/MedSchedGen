@@ -122,7 +122,7 @@
         	<option value="en-US">USA - mm/dd/yyyy (en-US)</option>
         </select>
         <br>
-        <label for="start-date">Start Date:</label><input id="start-date" type="date">
+        <label for="start-date">Start Date:</label><input id="start-date" type="date" value="2020-01-30">
         <label for="end-date">End Date:</label><input id="end-date" type="date">
         <!-- <input type="checkbox" id="weekdisplay-toggle" name="weekoption" checked><label for="weekdisplay-toggle">Add "week starting on..."</label> -->
         <label for="timeperiod-options">Time period label:</label><select name="timeperiod" id="timeperiod-options" placeholder="none" onchange="timePeriodOptionChanged()">
@@ -168,9 +168,10 @@
     </div>
     <div id="table-container"> </div>
     <script>
-      // These JSDoc definitions are not fully compatible with VSCode but can still be partly used by hovering over the "type" definition over a variable
-      // Unfortunately, this requires manually updating the documentation if the variable names are changed
-      // This is a limitation of the JSDoc system and the way it is implemented in VSCode
+      // DOCUMENTATION
+        // These JSDoc definitions are not fully compatible with VSCode but can still be partly used by hovering over the "type" definition over a variable
+        // Unfortunately, this requires manually updating the documentation if the variable names are changed
+        // This is a limitation of the JSDoc system and the way it is implemented in VSCode
 
       // Options object
       /**
@@ -196,6 +197,11 @@
          * @property {string} Long - Long date format.
          * @property {string} Weekday - Weekday format.
       */
+
+      // INIT
+      //  Set default date to today
+      document.getElementById("start-date").value = new Date().toISOString().split("T")[0];
+      document.getElementById("end-date").value = new Date().toISOString().split("T")[0];
 
       // EVENTS
       //  TIME PERIOD
@@ -260,11 +266,16 @@
         let workingday = new Date();
 
         let isFirstDayCreated = false;
+        let tableSpan = 7;
 
-        for (let i = 0; i < 7; i++) {
+        if (options.TimePeriod == "sidedweeknumber"){
+          tableSpan = 8;
+        }
+
+        for (let i = 0; i < tableSpan; i++) {
           let weekdayCell = document.createElement("th");
           workingday.setDate(currentDate.getDate() + i);
-          weekdayCell.textContent = `${workingday.toLocaleDateString(dateLocale,dateWeekday)}`;
+          weekdayCell.textContent = `${workingday.toLocaleDateString(options.DateLocale,dateFormat.Weekday)}`;
           weekdayCell.className = "td-weekday";
           weekdayRow.appendChild(weekdayCell);
           weekdays.appendChild(weekdayRow);
@@ -276,14 +287,14 @@
         let doseCounter = 0;
         let doseIteration = 0;
         
-        while (currentDate <= endDate) {
+        while (currentDate <= options.EndDate) {
           if (options.TimePeriod == "weekstarting"){
             // Table Header (Week Start)
             let thead = document.createElement("thead");
             let headerRow = document.createElement("tr");
             let headerCell = document.createElement("th");
             headerCell.colSpan = 7;
-            headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(dateLocale,dateLong)}`;
+            headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale,dateFormat.Long)}`;
             headerCell.className = "header-week-outline";
             headerRow.appendChild(headerCell);
             thead.appendChild(headerRow);
@@ -305,15 +316,15 @@
               //doseClass = "dose-" + doseIteration.toString();
           	}
             
-            let determinedDose = Number(dose) + (Number(doseIncrement) * Number(doseIteration));
+            let determinedDose = Number(options.Dose) + (Number(options.DoseIncrement) * Number(doseIteration));
             console.log(determinedDose);
-            console.log(dose,doseIncrement,doseIteration);
+            console.log(options.Dose,options.DoseIncrement,doseIteration);
             let cell = document.createElement("td");
             if (currentDate.getDate() === 1){
-              cell.textContent = currentDate.toLocaleDateString(dateLocale,dateShortMonth);
+              cell.textContent = currentDate.toLocaleDateString(options.DateLocale,dateFormat.ShortMonth);
             }
             else {
-              cell.textContent = currentDate.toLocaleDateString(dateLocale,dateShort);
+              cell.textContent = currentDate.toLocaleDateString(options.DateLocale,dateFormat.Short);
             }
             let doseIcon = document.createElement("span");
             // Only add dosage text if there actually is a dose specified
@@ -329,7 +340,7 @@
             currentDate.setDate(currentDate.getDate() + 1);
 						
             // Stop if we exceed the end date
-            if (currentDate > endDate) break;
+            if (currentDate > options.EndDate) break;
           }
 					
           tbody.appendChild(row);
@@ -365,35 +376,14 @@
         const doseIncrementTimes = doseIncrementTimesInput || 0;
         const dosePeriod = dosePeriodInput || 0;
         
-        /*if (!doseInput) {
-          dose = doseInput;
-        }
-				
-        if (!doseIncrementInput) {
-          doseIncrement = doseIncrementInput;
-        }
-        
-        if (!doseIncrementTimes) {
-          doseIncrementTimes = doseIncrementTimesInput
-        }
-        
-        if (!dosePeriodInput) {
-          dosePeriod = dosePeriodInput;
-        }*/
-        
         const startDate = new Date(startDateInput);
         const endDate = new Date(endDateInput);
-        //const dateLocale = dateLocaleInput;
-        //const timePeriod = timePeriodDisplayInput;
 
         if (startDate > endDate) {
           alert("Start date must be before the end date.");
           return;
         }
 				
-        // Some unecessary duplicating here but makes it easier to parse at the other end
-        
-
         /** @type {Options} */
         const options = {
           StartingDate: startDateInput,
@@ -411,7 +401,6 @@
         };
 
         generateWeeklyTables(options);
-        //generateWeeklyTables(startDate, endDate, dateLocale, timePeriod, dose, doseIncrement, doseIncrementTimes, dosePeriod);
       }
     </script>
     
