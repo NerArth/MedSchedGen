@@ -91,10 +91,10 @@
       input:not(:placeholder-shown) {
         background-color: white;
       }
-      select#weekdisplay-options {
+      select#timeperiod-options {
         background-color: white;
       }
-      select#weekdisplay-options option[value="none"] { 
+      select#timeperiod-options option[value="none"] { 
         background-color: lightgrey;
         font-family: monospace;
         font-variant: small-caps;
@@ -125,7 +125,7 @@
         <label for="start-date">Start Date:</label><input id="start-date" type="date">
         <label for="end-date">End Date:</label><input id="end-date" type="date">
         <!-- <input type="checkbox" id="weekdisplay-toggle" name="weekoption" checked><label for="weekdisplay-toggle">Add "week starting on..."</label> -->
-        <label for="weekdisplay-options">Time period label:</label><select name="weekdisplay" id="weekdisplay-options" placeholder="none" onchange="timePeriodOptionChanged()">
+        <label for="timeperiod-options">Time period label:</label><select name="timeperiod" id="timeperiod-options" placeholder="none" onchange="timePeriodOptionChanged()">
           <option value="none" selected>(None)</option>
           <option value="custom">Custom</option>
           <option value="weekstarting">Week starting on...</option>
@@ -141,7 +141,7 @@
       	<label for="dose-period">Days on each dose:</label><input id="dose-period" type="number" placeholder="n/a">
       </div>
       <div id="submitcontrols" class="controls-sub noprint" style="padding:10px">
-        <button onclick="generateFromInputs()">Generate Table</button>
+        <button onclick="handleInputs()">Generate Table</button>
       </div>
     </div>
     <div class="controls noprint" style="padding:10px; font-family:monospace; text-align:left; font-size:1.2em;">
@@ -168,10 +168,39 @@
     </div>
     <div id="table-container"> </div>
     <script>
+      // These JSDoc definitions are not fully compatible with VSCode but can still be partly used by hovering over the "type" definition over a variable
+      // Unfortunately, this requires manually updating the documentation if the variable names are changed
+      // This is a limitation of the JSDoc system and the way it is implemented in VSCode
+
+      // Options object
+      /**
+         * Configuration options for generating a weekly table.
+         * @typedef {Object} Options
+         * @property {string} StartingDate - The starting date input for the schedule.
+         * @property {string} EndingDate - The ending date input for the schedule.
+         * @property {string} DateLocale - The locale used for formatting dates.
+         * @property {string} TimePeriod - The display format for the time period.
+         * @property {number} Dose - The initial dose value.
+         * @property {number} DoseIncrement - The amount by which the dose is incremented.
+         * @property {number} DoseIncrementTimes - The number of times the dose is incremented.
+         * @property {number} DosePeriod - The period over which the dose is administered.
+         * @property {Date} StartDate - The parsed starting date object.
+         * @property {Date} EndDate - The parsed ending date object.
+      */
+      // DateFormat object
+      /**
+         * Configuration options for date formatting.
+         * @typedef {Object} DateFormat
+         * @property {string} Short - Short date format.
+         * @property {string} ShortMonth - Short date format with month.
+         * @property {string} Long - Long date format.
+         * @property {string} Weekday - Weekday format.
+      */
+
       // EVENTS
       //  TIME PERIOD
       function timePeriodOptionChanged() {
-        const timePeriodOption = document.getElementById("weekdisplay-options").value;
+        const timePeriodOption = document.getElementById("timeperiod-options").value;
         let weekSideHTML = [
           document.getElementById("timeperiod-sidedweek-side-label"),
           document.getElementById("timeperiod-sidedweek-side")
@@ -190,7 +219,9 @@
           });
         }
       }
-      // To-do: Everything needs tidying up here. Just in a basic functioning state with little organisation because of the prototyping flow
+
+      // GENERATORS
+      //  WEEKLY TABLE
       function generateWeeklyTables(optionsObject) {
       //function generateWeeklyTables(startDate, endDate, dateLocale, weeklyDisplay, dose, doseIncrement, doseIncrementTimes, dosePeriod) {
         //console.log(startDate,endDate,dateLocale,dose,doseIncrement,doseIncrementTimes,dosePeriod);
@@ -201,9 +232,12 @@
         });
 
         // deliberate redundancy to separate arg from parsed
+        /** @type {Options} */
         const options = optionsObject;
 
         const container = document.getElementById("table-container");
+
+        /** @type {DateFormat} */
         const dateFormat = {
           Short: { day: "numeric" },
           ShortMonth: { day: "numeric", month: "short" },
@@ -243,7 +277,7 @@
         let doseIteration = 0;
         
         while (currentDate <= endDate) {
-          if (weeklyDisplay=="weekstarting"){
+          if (options.TimePeriod == "weekstarting"){
             // Table Header (Week Start)
             let thead = document.createElement("thead");
             let headerRow = document.createElement("tr");
@@ -304,13 +338,14 @@
         }
       }
 			
-      function generateFromInputs() {
+      //  INPUT HANDLING -> TABLE GENERATION
+      function handleInputs() {
         // date inputs
         //document.getElementById("start-date").value = new Date();
         const startDateInput = document.getElementById("start-date").value;
         const endDateInput = document.getElementById("end-date").value;
         const dateLocaleInput = document.getElementById("date-locale").value;
-        const timePeriodDisplayInput = document.getElementById("weekdisplay-options").value;
+        const timePeriodDisplayInput = document.getElementById("timeperiod-options").value;
         
         // dosage inputs
         const doseInput = document.getElementById("dose").value;
@@ -357,6 +392,9 @@
         }
 				
         // Some unecessary duplicating here but makes it easier to parse at the other end
+        
+
+        /** @type {Options} */
         const options = {
           StartingDate: startDateInput,
           EndingDate: endDateInput,
