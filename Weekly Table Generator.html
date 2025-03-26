@@ -99,6 +99,9 @@
         font-family: monospace;
         font-variant: small-caps;
       }
+      #timeperiod-sidedweek-side-label, #timeperiod-sidedweek-side {
+        display:none;
+      }
     </style>
   </head>
   <body>
@@ -122,11 +125,13 @@
         <label for="start-date">Start Date:</label><input id="start-date" type="date">
         <label for="end-date">End Date:</label><input id="end-date" type="date">
         <!-- <input type="checkbox" id="weekdisplay-toggle" name="weekoption" checked><label for="weekdisplay-toggle">Add "week starting on..."</label> -->
-        <label for="weekdisplay-options">Time period label:</label><select name="weekdisplay" id="weekdisplay-options" placeholder="none">
+        <label for="weekdisplay-options">Time period label:</label><select name="weekdisplay" id="weekdisplay-options" placeholder="none" onchange="timePeriodOptionChanged()">
           <option value="none" selected>(None)</option>
-          <option value="custom" selected>Custom</option>
+          <option value="custom">Custom</option>
           <option value="weekstarting">Week starting on...</option>
+          <option value="sidedweeknumber">(Week # on side)</option>
         </select>
+        <label for="timeperiod-sidedweek-side" id="timeperiod-sidedweek-side-label"># on left</label><input id="timeperiod-sidedweek-side" type="checkbox" checked>
       </div>
       <div id="dosecontrols" class="controls-sub noprint" style="padding:10px">
         <label for="dose">Dosage (mg):</label><input id="dose" type="number" placeholder="n/a">
@@ -163,16 +168,55 @@
     </div>
     <div id="table-container"> </div>
     <script>
+      // EVENTS
+      //  TIME PERIOD
+      function timePeriodOptionChanged() {
+        const timePeriodOption = document.getElementById("weekdisplay-options").value;
+        let weekSideHTML = [
+          document.getElementById("timeperiod-sidedweek-side-label"),
+          document.getElementById("timeperiod-sidedweek-side")
+        ];
+        let weekSideLeft = document.getElementById("timeperiod-sidedweek-side").value; // .value true should == left
+
+        // Hide the week side bool checkbox
+        weekSideHTML.forEach(element => {
+          element.style.display = "none";
+        });
+
+        if (timePeriodOption == "sidedweeknumber") {
+          // Show the week side bool checkbox
+          weekSideHTML.forEach(element => {
+            element.style.display = "inline";
+          });
+        }
+      }
       // To-do: Everything needs tidying up here. Just in a basic functioning state with little organisation because of the prototyping flow
-      function generateWeeklyTables(startDate, endDate, dateLocale, weeklyDisplay, dose, doseIncrement, doseIncrementTimes, dosePeriod) {
-        console.log(startDate,endDate,dateLocale,dose,doseIncrement,doseIncrementTimes,dosePeriod);
+      function generateWeeklyTables(optionsObject) {
+      //function generateWeeklyTables(startDate, endDate, dateLocale, weeklyDisplay, dose, doseIncrement, doseIncrementTimes, dosePeriod) {
+        //console.log(startDate,endDate,dateLocale,dose,doseIncrement,doseIncrementTimes,dosePeriod);
+
+        // debug logging of parsed object values
+        Object.keys(optionsObject).forEach(key => {
+          console.log(`${key}: ${optionsObject[key]}`);
+        });
+
+        // deliberate redundancy to separate arg from parsed
+        const options = optionsObject;
+
         const container = document.getElementById("table-container");
-        const dateShort = {day:"numeric"};
-        const dateShortMonth = {day:"numeric",month:"short"};
-        const dateLong = {year:"numeric",month:"long",day:"numeric"};
-        const dateWeekday = {weekday:"long"};
+        const dateFormat = {
+          Short: { day: "numeric" },
+          ShortMonth: { day: "numeric", month: "short" },
+          Long: { year: "numeric", month: "long", day: "numeric" },
+          Weekday: { weekday: "long" }
+        };
+        
+        // const dateShort = {day:"numeric"};
+        // const dateShortMonth = {day:"numeric",month:"short"};
+        // const dateLong = {year:"numeric",month:"long",day:"numeric"};
+        // const dateWeekday = {weekday:"long"};
         container.innerHTML = ""; // Clear previous tables
-        let currentDate = new Date(startDate);
+        let currentDate = new Date(options.StartingDate);
         
         let table = document.createElement("table"); // The original script had this inside the while to make separate tables for each week
         
@@ -181,8 +225,8 @@
         let weekdayRow = document.createElement("tr");
         let workingday = new Date();
 
-        let isFirstDayCreated = false; // to-do, add functionality of showing the month on the very first day of the table, to make month clear
-        
+        let isFirstDayCreated = false;
+
         for (let i = 0; i < 7; i++) {
           let weekdayCell = document.createElement("th");
           workingday.setDate(currentDate.getDate() + i);
@@ -266,7 +310,7 @@
         const startDateInput = document.getElementById("start-date").value;
         const endDateInput = document.getElementById("end-date").value;
         const dateLocaleInput = document.getElementById("date-locale").value;
-        const weeklyDisplayInput = document.getElementById("weekdisplay-options").value;
+        const timePeriodDisplayInput = document.getElementById("weekdisplay-options").value;
         
         // dosage inputs
         const doseInput = document.getElementById("dose").value;
@@ -304,15 +348,32 @@
         
         const startDate = new Date(startDateInput);
         const endDate = new Date(endDateInput);
-        const dateLocale = dateLocaleInput;
-        const weeklyDisplay = weeklyDisplayInput;
+        //const dateLocale = dateLocaleInput;
+        //const timePeriod = timePeriodDisplayInput;
 
         if (startDate > endDate) {
           alert("Start date must be before the end date.");
           return;
         }
 				
-        generateWeeklyTables(startDate, endDate, dateLocale, weeklyDisplay, dose, doseIncrement, doseIncrementTimes, dosePeriod);
+        // Some unecessary duplicating here but makes it easier to parse at the other end
+        const options = {
+          StartingDate: startDateInput,
+          EndingDate: endDateInput,
+          DateLocale: dateLocaleInput,
+          TimePeriod: timePeriodDisplayInput,
+
+          Dose: dose,
+          DoseIncrement: doseIncrement,
+          DoseIncrementTimes: doseIncrementTimes,
+          DosePeriod: dosePeriod,
+
+          StartDate: startDate,
+          EndDate: endDate,
+        };
+
+        generateWeeklyTables(options);
+        //generateWeeklyTables(startDate, endDate, dateLocale, timePeriod, dose, doseIncrement, doseIncrementTimes, dosePeriod);
       }
     </script>
     
