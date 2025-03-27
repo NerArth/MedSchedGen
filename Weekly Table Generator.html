@@ -114,7 +114,8 @@
         font-family: monospace;
         font-variant: small-caps;
       }
-      #timeperiod-sidedweek-side-label, #timeperiod-sidedweek-side {
+      #timeperiod-sidedweek-side-label, #timeperiod-sidedweek-side,
+      #timeperiod-customlabel, #timeperiod-customlabel-label {
         display:none;
       }
     </style>
@@ -147,6 +148,7 @@
           <option value="sidedweeknumber">(Week # on side)</option>
         </select>
         <label for="timeperiod-sidedweek-side" id="timeperiod-sidedweek-side-label"># on left</label><input id="timeperiod-sidedweek-side" type="checkbox" checked>
+        <label for="timeperiod-customlabel" id="timeperiod-customlabel-label">Custom text:</label><input id="timeperiod-customlabel" type="text" placeholder="n/a">
       </div>
       <div id="dosecontrols" class="controls-sub noprint" style="padding:10px">
         <label for="dose">Dosage (mg):</label><input id="dose" type="number" placeholder="n/a">
@@ -227,15 +229,29 @@
           document.getElementById("timeperiod-sidedweek-side-label"),
           document.getElementById("timeperiod-sidedweek-side")
         ];
+        let customLabelHTML = [
+          document.getElementById("timeperiod-customlabel-label"),
+          document.getElementById("timeperiod-customlabel")
+        ];
 
         // Hide the week side bool checkbox
         weekSideHTML.forEach(element => {
+          element.style.display = "none";
+        });
+        // Hide the custom label input
+        customLabelHTML.forEach(element => {
           element.style.display = "none";
         });
 
         if (timePeriodOption == "sidedweeknumber") {
           // Show the week side bool checkbox
           weekSideHTML.forEach(element => {
+            element.style.display = "inline";
+          });
+        }
+        if (timePeriodOption == "custom") {
+          // Show the custom label input
+          customLabelHTML.forEach(element => {
             element.style.display = "inline";
           });
         }
@@ -316,12 +332,18 @@
         
         while (currentDate <= options.EndDate) {
           // If the time period is set to "weekstarting", display the week starting date as a header row
-          if (options.TimePeriod == "weekstarting"){
+          if (options.TimePeriod == "weekstarting" || options.TimePeriod == "custom"){
+            let _option = options.TimePeriod == "weekstarting" ? 0 : options.TimePeriod == "custom" ? document.getElementById("timeperiod-customlabel").value : "Error";
             let thead = document.createElement("thead"); //header
             let headerRow = document.createElement("tr"); //header row
             let headerCell = document.createElement("th"); //header cell
             headerCell.colSpan = 7;
-            headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale,dateFormat.Long)}`;
+            if (_option == 0) {
+              headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale,dateFormat.Long)}`;
+            }
+            else {
+              headerCell.textContent = _option;
+            }
             headerCell.className = "header-week-outline";
             headerRow.appendChild(headerCell);
             thead.appendChild(headerRow);
