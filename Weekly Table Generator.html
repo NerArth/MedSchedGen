@@ -48,6 +48,26 @@
         padding: 10px;
         text-align: center;
       }
+      tbody > tr > td{
+        padding: 40px;
+        padding-top: 4px;
+        padding-left: 4px;
+        text-align: left;
+        font-size: 0.75em;
+      }
+      .th-weekindicator {
+        text-align: center;
+        font-size: 4mm;
+        font-family: monospace;
+        padding: initial;
+        width: 5em;
+      }
+      .td-weekindicator {
+        text-align: center;
+        font-size: 6.3mm;
+        font-family: monospace;
+        padding: initial;
+      }
       .header-week-outline {
         background-color: floralwhite;
         text-align: left;
@@ -60,14 +80,8 @@
         padding-top: 12px;
         padding-bottom: 5px;
       }
-      tbody > tr > td{
-        padding: 40px;
-        padding-top: 4px;
-        padding-left: 4px;
-        text-align: left;
-        font-size: 0.75em;
-      }
       .dose-0{
+        margin: 2px;
         /*margin: 2px;
         width: 8px;
         height: 8px;
@@ -75,7 +89,8 @@
         border-width: 1px;
         border-style: solid;
         border-color: black;*/
-      }/*
+      }
+      /*
       .dose-1{
         margin: 2px;
         width: 8px;
@@ -181,6 +196,7 @@
          * @property {string} EndingDate - The ending date input for the schedule.
          * @property {string} DateLocale - The locale used for formatting dates.
          * @property {string} TimePeriod - The display format for the time period.
+         * @property {boolean} SidedWeekNumberingLeft - Whether to display the week number on the left side; otherwise right side.
          * @property {number} Dose - The initial dose value.
          * @property {number} DoseIncrement - The amount by which the dose is incremented.
          * @property {number} DoseIncrementTimes - The number of times the dose is incremented.
@@ -211,7 +227,6 @@
           document.getElementById("timeperiod-sidedweek-side-label"),
           document.getElementById("timeperiod-sidedweek-side")
         ];
-        let weekSideLeft = document.getElementById("timeperiod-sidedweek-side").value; // .value true should == left
 
         // Hide the week side bool checkbox
         weekSideHTML.forEach(element => {
@@ -232,10 +247,13 @@
       //function generateWeeklyTables(startDate, endDate, dateLocale, weeklyDisplay, dose, doseIncrement, doseIncrementTimes, dosePeriod) {
         //console.log(startDate,endDate,dateLocale,dose,doseIncrement,doseIncrementTimes,dosePeriod);
 
+        const debug = true;
         // debug logging of parsed object values
-        Object.keys(optionsObject).forEach(key => {
-          console.log(`${key}: ${optionsObject[key]}`);
-        });
+        if (debug){
+          Object.keys(optionsObject).forEach(key => {
+            console.log(`${key}: ${optionsObject[key]}`);
+          });
+        }
 
         // deliberate redundancy to separate arg from parsed
         /** @type {Options} */
@@ -262,37 +280,46 @@
         
         // Make a weekday header before anything else
         let weekdays = document.createElement("thead");
+        weekdays.id = "thead-weekdays";
         let weekdayRow = document.createElement("tr");
         let workingday = new Date();
 
         let isFirstDayCreated = false;
         let tableSpan = 7;
+        let periodindicatorDisplayed = false;
+        let periodindicatorCounter = 0;
 
         if (options.TimePeriod == "sidedweeknumber"){
+          periodindicatorDisplayed = true;
           tableSpan = 8;
         }
 
-        for (let i = 0; i < tableSpan; i++) {
+        // Header
+        if (periodindicatorDisplayed && options.SidedWeekNumberingLeft){console.log("sidedleft");weekIndicatorInjection(weekdayRow);}
+        for (let i = 0; i < 7; i++) {
           let weekdayCell = document.createElement("th");
           workingday.setDate(currentDate.getDate() + i);
           weekdayCell.textContent = `${workingday.toLocaleDateString(options.DateLocale,dateFormat.Weekday)}`;
           weekdayCell.className = "td-weekday";
           weekdayRow.appendChild(weekdayCell);
           weekdays.appendChild(weekdayRow);
+          if (i == 6 && periodindicatorDisplayed && !options.SidedWeekNumberingLeft){console.log("sidedright");weekIndicatorInjection(weekdayRow);}
         }
+
         table.appendChild(weekdays);
 				
         
-        // Building the table        
+        // Building the table
+        // Dose iterators
         let doseCounter = 0;
         let doseIteration = 0;
         
         while (currentDate <= options.EndDate) {
+          // If the time period is set to "weekstarting", display the week starting date as a header row
           if (options.TimePeriod == "weekstarting"){
-            // Table Header (Week Start)
-            let thead = document.createElement("thead");
-            let headerRow = document.createElement("tr");
-            let headerCell = document.createElement("th");
+            let thead = document.createElement("thead"); //header
+            let headerRow = document.createElement("tr"); //header row
+            let headerCell = document.createElement("th"); //header cell
             headerCell.colSpan = 7;
             headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale,dateFormat.Long)}`;
             headerCell.className = "header-week-outline";
@@ -307,9 +334,10 @@
           let tbody = document.createElement("tbody");
           let row = document.createElement("tr");
 					
+          if (periodindicatorDisplayed && options.SidedWeekNumberingLeft){console.log("sidedleft");periodindicatorCounter++;weekValueInjection(periodindicatorCounter,row);}
           for (let i = 0; i < 7; i++) {
-            if (doseCounter >= dosePeriod) {
-              if (doseIteration < doseIncrementTimes){
+            if (doseCounter >= options.DosePeriod) {
+              if (doseIteration < options.DoseIncrementTimes){
               	doseIteration++;
               }
               doseCounter = 0;
@@ -317,8 +345,12 @@
           	}
             
             let determinedDose = Number(options.Dose) + (Number(options.DoseIncrement) * Number(doseIteration));
-            console.log(determinedDose);
-            console.log(options.Dose,options.DoseIncrement,doseIteration);
+
+            if (debug) {
+              console.log(determinedDose);
+              console.log(options.Dose,options.DoseIncrement,doseIteration);
+            }
+
             let cell = document.createElement("td");
             if (currentDate.getDate() === 1){
               cell.textContent = currentDate.toLocaleDateString(options.DateLocale,dateFormat.ShortMonth);
@@ -335,6 +367,7 @@
             doseCounter++;
             cell.appendChild(doseIcon);
             row.appendChild(cell);
+            if (i == 6 && periodindicatorDisplayed && !options.SidedWeekNumberingLeft){console.log("sidedright");periodindicatorCounter++;weekValueInjection(periodindicatorCounter,row);}
 						
             // Move to next day
             currentDate.setDate(currentDate.getDate() + 1);
@@ -348,6 +381,22 @@
           container.appendChild(table);
         }
       }
+      //  INJECT WEEK INDICATOR INTO TABLE
+      function weekIndicatorInjection(_target){
+        let cell = document.createElement("th");
+        cell.textContent = `Week #`;
+        cell.className = "th-weekindicator";
+        _target.appendChild(cell);
+      }
+
+      //  INJECT WEEK VALUE INTO TABLE
+      function weekValueInjection(_counter,_target){
+        let cell = document.createElement("td");
+        cell.textContent = `${_counter}`;
+        cell.className = "td-weekindicator";
+        _target.appendChild(cell);
+      }
+      // END OF GENERATORS
 			
       //  INPUT HANDLING -> TABLE GENERATION
       function handleInputs() {
@@ -357,6 +406,7 @@
         const endDateInput = document.getElementById("end-date").value;
         const dateLocaleInput = document.getElementById("date-locale").value;
         const timePeriodDisplayInput = document.getElementById("timeperiod-options").value;
+        const sidedWeekNumberingInput = document.getElementById("timeperiod-sidedweek-side").checked;
         
         // dosage inputs
         const doseInput = document.getElementById("dose").value;
@@ -390,6 +440,7 @@
           EndingDate: endDateInput,
           DateLocale: dateLocaleInput,
           TimePeriod: timePeriodDisplayInput,
+          SidedWeekNumberingLeft: sidedWeekNumberingInput,
 
           Dose: dose,
           DoseIncrement: doseIncrement,
