@@ -31,7 +31,7 @@
       .controls-sub:not(#submitcontrols) {
         text-align: left;
       }
-      input[type="date"], input[type="number"], select {
+      input[type="date"], input[type="number"], input[type="text"], textarea, select {
         padding: 4px;
         margin: 4px;
         border: 3px solid lightgrey;
@@ -118,6 +118,10 @@
       #timeperiod-customlabel, #timeperiod-customlabel-label {
         display:none;
       }
+      #footer-custom-text {
+        resize: both;
+        overflow: auto;
+      }
     </style>
   </head>
   <body>
@@ -131,6 +135,7 @@
       <h2 style="margin-bottom: 4px;">Settings</h2>
       <p style="text-align:center; margin-top: 0; font-size:0.75em;">
         <strong>NOTE:</strong> <i>Anything inside dashed boxes is not printed out in a physical document!</i>
+        <i>Be sure to double-check print previews!</i>
       </p>
       <div id="datecontrols" class="controls-sub noprint" style="padding:10px">
         <label for="date-locale">Date format:</label><select name="date-locale" id="date-locale">
@@ -151,11 +156,23 @@
         <label for="timeperiod-customlabel" id="timeperiod-customlabel-label">Custom text:</label><input id="timeperiod-customlabel" type="text" placeholder="n/a">
       </div>
       <div id="dosecontrols" class="controls-sub noprint" style="padding:10px">
+        <label for="dose-multi">Multidose:</label><input type="checkbox" id="dose-multi" checked>
         <label for="dose">Dosage (mg):</label><input id="dose" type="number" placeholder="n/a">
         <label for="dose-increment">Change (mg):</label><input id="dose-increment" type="number" placeholder="n/a">
         <br>
         <label for="dose-increment-times"># of dose changes:</label><input id="dose-increment-times" type="number" placeholder="n/a">
       	<label for="dose-period">Days on each dose:</label><input id="dose-period" type="number" placeholder="n/a">
+      </div>
+      <div id="headfootcontrols" 	class="controls-sub noprint" style="padding:10px">
+        <p><i>Text options above calendar</i></p>
+        <label for="header-title">Title:</label><input id="title" type="text" placeholder="Medication Schedule">
+        <br>
+        <p><i>Text options below calendar</i></p>
+        <label for="footer-custom">Custom text:</label><input id="footer-custom" type="checkbox" checked>
+        <br>
+        <label for="footer-custom-text">Freeform text to add:</label>
+        <br>
+        <textarea id="footer-custom-text" value=none placeholder="n/a"></textarea>
       </div>
       <div id="submitcontrols" class="controls-sub noprint" style="padding:10px">
         <button onclick="handleInputs()">Generate Table</button>
