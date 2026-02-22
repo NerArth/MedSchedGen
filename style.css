@@ -1,0 +1,140 @@
+@media print {
+    .noprint {
+        display: none;
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.controls {
+    margin: 20px 0;
+    border: 2px dashed grey;
+    border-top-width: 4px;
+    border-bottom-width: 4px;
+}
+
+.controls-sub {
+    margin: 6px;
+    border: 1px lightgrey;
+    border-style: ridge;
+}
+
+.controls-sub:not(#submitcontrols) {
+    text-align: left;
+}
+
+input[type="date"],
+input[type="number"],
+input[type="text"],
+textarea,
+select {
+    padding: 4px;
+    margin: 4px;
+    border: 3px solid lightgrey;
+    border-radius: 3px;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+tbody > tr > td {
+    padding: 40px;
+    padding-top: 4px;
+    padding-left: 4px;
+    text-align: left;
+    font-size: 0.75em;
+}
+
+.th-weekindicator {
+    text-align: center;
+    font-size: 4mm;
+    font-family: monospace;
+    padding: initial;
+    width: 5em;
+}
+
+.td-weekindicator {
+    text-align: center;
+    font-size: 6.3mm;
+    font-family: monospace;
+    padding: initial;
+}
+
+.header-week-outline {
+    background-color: floralwhite;
+    text-align: left;
+    padding-top: 8px;
+    padding-bottom: 5px;
+}
+
+.td-weekday {
+    background-color: wheat;
+    font-size: 0.75em;
+    padding-top: 12px;
+    padding-bottom: 5px;
+}
+
+.dose-0 {
+    margin: 2px;
+    /*margin: 2px;
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;*/
+}
+
+/*
+    .dose-1{
+    margin: 2px;
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    }*/
+input:placeholder-shown {
+    background-color: #ededed;
+}
+
+input:not(:placeholder-shown) {
+    background-color: white;
+}
+
+select#timeperiod-options {
+    background-color: white;
+}
+
+select#timeperiod-options option[value="none"] {
+    background-color: lightgrey;
+    font-family: monospace;
+    font-variant: small-caps;
+}
+
+#timeperiod-sidedweek-side-label,
+#timeperiod-sidedweek-side,
+#timeperiod-customlabel,
+#timeperiod-customlabel-label {
+    display: none;
+}
+
+#footer-custom-text {
+    resize: both;
+    overflow: auto;
+}

@@ -1,7 +1,6 @@
 PROJECT TODO LIST
 
 Architecture:
-- Split into multiple files, e.g. `index.html`, `script.js`, `style.css`
 - Add a build script to combine them into a single file
 
 Distribution, etc:
