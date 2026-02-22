@@ -10,15 +10,7 @@ The HTML page, the script it uses, and the CSS styling, are all self-contained w
 
 ## Wishlist/To-do
 (no specific order)
-- Better default formatting/styling
-- More flexibility with medication/dosing
-- Clearer structure and examples on how to use the tool
-- Add options for dose/medication colour-coding, up to user preference
-- Add an option to pick which day of the week the schedule starts on (*Sunday*, *Monday*, etc.)
-- Add an option for padding out days so it makes a square table
-- Make it easier to download the tool for offline use
-- Add version information
-- Fix the way GitHub pages is working
+![To-do](.dev/todo.txt)
 
 ## Notes
 The wishlist above is just that, a list of wishes. However, I really would like to add support for colour-coding per medication/dose, as this is something that is very useful for double-checking the right medication is being taken.
