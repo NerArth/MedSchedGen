@@ -12,7 +12,9 @@ Featureset:
 - Add options for dose/medication colour-coding, up to user preference
 - Add an option to pick which day of the week the schedule starts on (*Sunday*, *Monday*, etc.)
 - Add an option for padding out days so it makes a square table (need to check if I've done this already?)
+- Add a "Print" button to open native print dialog
 
 UX:
 - Clearer structure and examples on how to use the tool
 - Fix the way GitHub pages is working (?)
+- Accessibility support (i.e. dyslexia-friendly font, etc.)
