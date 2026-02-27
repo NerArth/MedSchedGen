@@ -12,9 +12,9 @@ Distribution, etc:
 - [X] Singular combined file for distribution and for easy semantic versioning
 
 Pending fixes:
-- [X] (1) Make "Title:" field actually change the displayed title
-- [X] (1) Make "Freeform text to add:" actually be added below the calendar
-- [X] (1) Make date settings control "Custom text:" only be added once.
+- [X] Make "Title:" field actually change the displayed title
+- [X] Make "Freeform text to add:" actually be added below the calendar
+- [X] Make date settings control "Custom text:" only be added once.
 - [ ] (2) Solution for issue where some of the padding/margins within the days, where it is currently unnecessary/affects the printable output to the detriment of UX
 
 Featureset:
