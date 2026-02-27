@@ -88,6 +88,11 @@ tbody > tr > td {
     padding-bottom: 5px;
 }
 
+.td-padding-hidden {
+    border-style: none !important;
+    background: none !important;
+}
+
 .dose-0 {
     margin: 2px;
     /*margin: 2px;

@@ -22,6 +22,7 @@
  * @property {boolean} FooterEnabled - Whether the footer text is enabled.
  * @property {string} FooterText - The freeform text for the footer.
  * @property {boolean} PadWeeks - Whether to pad the final week with empty cells to make a full 7-day row.
+ * @property {number} WeekStartDay - The day of the week the schedule starts on (0=Sunday, 1=Monday, etc.)
  */
 // DateFormat object
 /**
@@ -109,9 +110,9 @@ function generateWeeklyTables(optionsObject) {
     let weekdays = document.createElement("thead");
     weekdays.id = "thead-weekdays";
     let weekdayRow = document.createElement("tr");
-    let workingday = new Date();
+    // Calculate how many days back the "Grid Week" starts relative to the StartDate
+    const startDayGridOffset = (options.StartDate.getDay() - options.WeekStartDay + 7) % 7;
 
-    let isFirstDayCreated = false;
     let tableSpan = 7;
     let periodindicatorDisplayed = false;
     let periodindicatorCounter = 0;
@@ -132,10 +133,14 @@ function generateWeeklyTables(optionsObject) {
         console.log("sidedleft");
         weekIndicatorInjection(weekdayRow);
     }
+    // Generate headers based on WeekStartDay (using schedule context)
     for (let i = 0; i < 7; i++) {
         let weekdayCell = document.createElement("th");
-        workingday.setDate(currentDate.getDate() + i);
-        weekdayCell.textContent = `${workingday.toLocaleDateString(options.DateLocale, dateFormat.Weekday)}`;
+        // Get the date for this column in the first week of the schedule
+        let displayDay = new Date(options.StartDate);
+        displayDay.setDate(displayDay.getDate() - startDayGridOffset + i);
+
+        weekdayCell.textContent = `${displayDay.toLocaleDateString(options.DateLocale, dateFormat.Weekday)}`;
         weekdayCell.className = "td-weekday";
         weekdayRow.appendChild(weekdayCell);
         weekdays.appendChild(weekdayRow);
@@ -189,24 +194,31 @@ function generateWeeklyTables(optionsObject) {
             periodindicatorCounter++;
             weekValueInjection(periodindicatorCounter, row);
         }
+
+        // Calculate leading padding for the first row
+        let leadingPadding = 0;
+        if (currentDate.getTime() === options.StartDate.getTime()) {
+            leadingPadding = startDayGridOffset;
+        }
+
         for (let i = 0; i < 7; i++) {
             let cell = document.createElement("td");
 
-            if (currentDate <= options.EndDate) {
+            if (leadingPadding > 0) {
+                // Leading padding cell
+                cell.classList.add("td-padding");
+                if (!options.PadWeeks) cell.classList.add("td-padding-hidden");
+                cell.innerHTML = "&nbsp;";
+                leadingPadding--;
+            } else if (currentDate <= options.EndDate) {
                 if (doseCounter >= options.DosePeriod) {
                     if (doseIteration < options.DoseIncrementTimes) {
                         doseIteration++;
                     }
                     doseCounter = 0;
-                    //doseClass = "dose-" + doseIteration.toString();
                 }
 
                 let determinedDose = Number(options.Dose) + Number(options.DoseIncrement) * Number(doseIteration);
-
-                if (debug) {
-                    console.log(determinedDose);
-                    console.log(options.Dose, options.DoseIncrement, doseIteration);
-                }
 
                 if (currentDate.getDate() === 1) {
                     cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.ShortMonth);
@@ -223,15 +235,12 @@ function generateWeeklyTables(optionsObject) {
                 doseCounter++;
                 cell.appendChild(doseIcon);
 
-                // Move to next day AFTER processing cell content
                 currentDate.setDate(currentDate.getDate() + 1);
-            } else if (options.PadWeeks) {
-                // Padding cell
-                cell.classList.add("td-padding");
-                cell.innerHTML = "&nbsp;"; // Add a non-breaking space to ensure borders render correctly in all browsers
             } else {
-                // Not padding, so stop adding cells to this row
-                break;
+                // Trailing padding cell
+                cell.classList.add("td-padding");
+                if (!options.PadWeeks) cell.classList.add("td-padding-hidden");
+                cell.innerHTML = "&nbsp;";
             }
 
             row.appendChild(cell);
@@ -331,6 +340,7 @@ function handleInputs() {
         FooterEnabled: document.getElementById("footer-custom").checked,
         FooterText: document.getElementById("footer-custom-text").value,
         PadWeeks: document.getElementById("pad-weeks").checked,
+        WeekStartDay: document.getElementById("week-start-day").value,
     };
 
     generateWeeklyTables(options);
