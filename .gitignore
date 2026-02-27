@@ -1,3 +1,5 @@
-# Ignore any default content within releases directory.
+# Ignore any default content within releases directories.
 !releases/
 releases/**
+!dist/
+dist/**
