@@ -3,6 +3,24 @@
 // Unfortunately, this requires manually updating the documentation if the variable names are changed
 // This is a limitation of the JSDoc system and the way it is implemented in VSCode
 
+/* 
+ * Script Vars
+ * @property {Array} DoseUnits - Available dosing units to pick from.
+ */
+
+// Medication object
+/**
+ * Definition for Medication object.
+ * @typedef {Object} Medication
+ * @property {string} name - The name of the medication
+ * @property {number} dose - The base dose amount
+ * @property {number} doseFrequency - The number of times the dose is taken in a day
+ * @property {number} doseIncrement - The increment amount for dose adjustments
+ * @property {number} doseIncrementTimes - The number of times the dose increment occurs
+ * @property {number} dosePeriod - The period over which doses are administered
+ * @property {string} doseUnit - The unit of measurement for the dose (e.g., 'mg', 'ml')
+ */
+
 // Options object
 /**
  * Configuration options for generating a weekly table.
@@ -12,6 +30,7 @@
  * @property {string} DateLocale - The locale used for formatting dates.
  * @property {string} TimePeriod - The display format for the time period.
  * @property {boolean} SidedWeekNumberingLeft - Whether to display the week number on the left side; otherwise right side.
+ * @property {Array} Medications - Array of different medications to include in the schedule.
  * @property {number} Dose - The initial dose value.
  * @property {number} DoseIncrement - The amount by which the dose is incremented.
  * @property {number} DoseIncrementTimes - The number of times the dose is incremented.
@@ -24,6 +43,7 @@
  * @property {boolean} PadWeeks - Whether to pad the final week with empty cells to make a full 7-day row.
  * @property {number} WeekStartDay - The day of the week the schedule starts on (0=Sunday, 1=Monday, etc.)
  */
+
 // DateFormat object
 /**
  * Configuration options for date formatting.
@@ -38,6 +58,27 @@
 //  Set default date to today
 document.getElementById("start-date").value = new Date().toISOString().split("T")[0];
 document.getElementById("end-date").value = new Date().toISOString().split("T")[0];
+
+const DoseUnits = ["mg","g","unit","tblt","cspl","ml","tbsp","tsp"]
+
+// CLASSES
+/** @type {Object} Medication */
+function Medication(name,dose,doseFrequency,doseIncrement,doseIncrementTimes,dosePeriod,doseUnit) {
+    // the medication class here is an abstract placeholder prototype to represent a medication. It will be extended with specific properties and methods as needed.
+    this.name = name;
+    this.dose = dose;
+    this.doseFrequency = doseFrequency;
+    // this.doseIntervalPeriod = this.doseIntervalPeriod; // PH - not to be used for now.
+    this.doseIncrement = doseIncrement;
+    this.doseIncrementTimes = doseIncrementTimes;
+    this.dosePeriod = dosePeriod;
+    this.doseUnit = doseUnit;
+
+    // Additional methods that might be needed for medication scheduling
+    this.getCombinedDosage = function() {
+        return this.dose * this.doseIntervals;
+    };
+}
 
 // EVENTS
 //  TIME PERIOD

@@ -22,7 +22,7 @@ Featureset:
 - [X] Add a "Print" button next to "Generate Table" button, to open native print dialog
 - [X] Add an option to pick which day of the week the schedule starts on (*Sunday*, *Monday*, etc.) while making sure the padding option still works as intended
 - [ ] (3) Add options for dose/medication colour-coding, up to user preference (colour-coding would be implemented in the input settings as a list for each medication with each one having a unique colour option; in the output it would be implemented as a small colour-filled bordered square next to the dosage units)
-- [ ] (5) More flexibility with medication/dosing options
+- [ ] (1) More flexibility with medication/dosing options; this would benefit from an approach implementing multi-medication options; a prototype placeholder has now been written in script.js for this purpose
 
 Accessibility:
 - [ ] (4) Dyslexia-friendly font toggled by checkbox
