@@ -155,19 +155,26 @@ function generateWeeklyTables(optionsObject) {
         // If the time period is set to "weekstarting", display the week starting date as a header row
         if (options.TimePeriod == "weekstarting" || options.TimePeriod == "custom") {
             let _option = options.TimePeriod == "weekstarting" ? 0 : options.TimePeriod == "custom" ? document.getElementById("timeperiod-customlabel").value : "Error";
-            let thead = document.createElement("thead"); //header
-            let headerRow = document.createElement("tr"); //header row
-            let headerCell = document.createElement("th"); //header cell
-            headerCell.colSpan = 7;
-            if (_option == 0) {
-                headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale, dateFormat.Long)}`;
+
+            // For "custom", only add it once at the very beginning of the table
+            if (options.TimePeriod == "custom" && table.querySelector(".header-custom-period")) {
+                // Already added, skip
             } else {
-                headerCell.textContent = _option;
+                let thead = document.createElement("thead"); //header
+                let headerRow = document.createElement("tr"); //header row
+                let headerCell = document.createElement("th"); //header cell
+                headerCell.colSpan = tableSpan; // Use tableSpan to account for week numbers
+                if (_option == 0) {
+                    headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale, dateFormat.Long)}`;
+                } else {
+                    headerCell.textContent = _option;
+                    headerCell.className = "header-custom-period";
+                }
+                headerCell.classList.add("header-week-outline");
+                headerRow.appendChild(headerCell);
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
             }
-            headerCell.className = "header-week-outline";
-            headerRow.appendChild(headerCell);
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
         }
 
         let doseClass = "dose-0"; // currently unused
