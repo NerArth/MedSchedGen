@@ -1,4 +1,9 @@
 PROJECT TODO LIST
+Note:
+`[ ]` and `[X]` denote checklist item completion status.
+`(n)` denotes a priority weight for a task, with a lower number e.g. `1` being more important than `2` or `3`.
+Multiple items with using the same priority weight will have the same weight as each other. 
+`(n)` should be removed if an item status becomes `[X]`.
 
 Architecture:
 - [X] Add a build script to combine them into a single file
@@ -6,15 +11,22 @@ Architecture:
 Distribution, etc:
 - [X] Singular combined file for distribution and for easy semantic versioning
 
+Pending fixes:
+- [ ] (1) Make "Title:" field actually change the displayed title
+- [ ] (1) Make "Freeform text to add:" actually be added below the calendar
+- [ ] (1) Make date settings control "Custom text:" only be added once.
+- [ ] (2) Solution for issue where some of the padding/margins within the days, where it is currently unnecessary/affects the printable output to the detriment of UX
+
 Featureset:
-- Better default formatting/styling
-- More flexibility with medication/dosing
-- Add options for dose/medication colour-coding, up to user preference
-- Add an option to pick which day of the week the schedule starts on (*Sunday*, *Monday*, etc.)
-- Add an option for padding out days so it makes a square table (need to check if I've done this already?)
-- Add a "Print" button to open native print dialog
+- [ ] (2) Add an option for padding out days so it makes a square table
+- [ ] (2) Add a "Print" button next to "Generate Table" button, to open native print dialog
+- [ ] (3) Add an option to pick which day of the week the schedule starts on (*Sunday*, *Monday*, etc.)
+- [ ] (5) Add options for dose/medication colour-coding, up to user preference (colour-coding would be implemented in the input settings as a list for each medication with each one having a unique colour option; in the output it would be implemented as a small colour-filled bordered square next to the dosage units)
+- [ ] (5) More flexibility with medication/dosing options
+
+Accessibility:
+- [ ] (4) Dyslexia-friendly font toggled by checkbox
 
 UX:
-- Clearer structure and examples on how to use the tool
-- Fix the way GitHub pages is working (?)
-- Accessibility support (i.e. dyslexia-friendly font, etc.)
+- [ ] (6) Clearer structure/examples on how to use the tool?
+- [ ] (7) Fix the way GitHub pages is working (?) (might not favour this for much longer, once using releases properly)
