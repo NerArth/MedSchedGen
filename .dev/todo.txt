@@ -1,10 +1,10 @@
 PROJECT TODO LIST
 
 Architecture:
-- Add a build script to combine them into a single file
+- [X] Add a build script to combine them into a single file
 
 Distribution, etc:
-- Singular combined file for distribution and for easy semantic versioning
+- [X] Singular combined file for distribution and for easy semantic versioning
 
 Featureset:
 - Better default formatting/styling
