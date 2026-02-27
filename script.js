@@ -18,6 +18,7 @@
  * @property {number} DosePeriod - The period over which the dose is administered.
  * @property {Date} StartDate - The parsed starting date object.
  * @property {Date} EndDate - The parsed ending date object.
+ * @property {string} Title - The title text for the table.
  */
 // DateFormat object
 /**
@@ -111,6 +112,12 @@ function generateWeeklyTables(optionsObject) {
     let tableSpan = 7;
     let periodindicatorDisplayed = false;
     let periodindicatorCounter = 0;
+
+    // Update main title
+    const mainTitle = document.getElementById("main-title");
+    if (mainTitle) {
+        mainTitle.textContent = options.Title || "Medication Schedule";
+    }
 
     if (options.TimePeriod == "sidedweeknumber") {
         periodindicatorDisplayed = true;
@@ -289,6 +296,8 @@ function handleInputs() {
 
         StartDate: startDate,
         EndDate: endDate,
+
+        Title: document.getElementById("title").value,
     };
 
     generateWeeklyTables(options);
