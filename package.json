@@ -1,0 +1,25 @@
+{
+    "name": "med-sched-gen",
+    "version": "1.1.0",
+    "description": "Generate medication-taking schedules which can then be printed off for real-world usage.",
+    "author": "NerArth",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/NerArth/MedSchedGen"
+    },
+    "scripts": {
+        "build": "powershell -ExecutionPolicy Bypass -File .dev/build.ps1"
+    },
+    "build": {
+        "source": {
+            "html": "index.html",
+            "css": "style.css",
+            "js": "script.js"
+        },
+        "output": {
+            "directory": "dist",
+            "nameFormat": "MedSched_v{version}.html"
+        }
+    }
+}
