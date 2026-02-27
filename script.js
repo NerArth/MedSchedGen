@@ -19,6 +19,8 @@
  * @property {Date} StartDate - The parsed starting date object.
  * @property {Date} EndDate - The parsed ending date object.
  * @property {string} Title - The title text for the table.
+ * @property {boolean} FooterEnabled - Whether the footer text is enabled.
+ * @property {string} FooterText - The freeform text for the footer.
  */
 // DateFormat object
 /**
@@ -227,6 +229,16 @@ function generateWeeklyTables(optionsObject) {
         table.appendChild(tbody);
         container.appendChild(table);
     }
+
+    // Add footer text if enabled
+    if (options.FooterEnabled && options.FooterText) {
+        const footerDiv = document.createElement("div");
+        footerDiv.className = "footer-text";
+        footerDiv.style.marginTop = "20px";
+        footerDiv.style.whiteSpace = "pre-wrap"; // Preserve line breaks from textarea
+        footerDiv.textContent = options.FooterText;
+        container.appendChild(footerDiv);
+    }
 }
 //  INJECT WEEK INDICATOR INTO TABLE
 function weekIndicatorInjection(_target) {
@@ -298,6 +310,8 @@ function handleInputs() {
         EndDate: endDate,
 
         Title: document.getElementById("title").value,
+        FooterEnabled: document.getElementById("footer-custom").checked,
+        FooterText: document.getElementById("footer-custom-text").value,
     };
 
     generateWeeklyTables(options);

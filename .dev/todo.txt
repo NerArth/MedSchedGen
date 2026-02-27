@@ -13,7 +13,7 @@ Distribution, etc:
 
 Pending fixes:
 - [X] (1) Make "Title:" field actually change the displayed title
-- [ ] (1) Make "Freeform text to add:" actually be added below the calendar
+- [X] (1) Make "Freeform text to add:" actually be added below the calendar
 - [ ] (1) Make date settings control "Custom text:" only be added once.
 - [ ] (2) Solution for issue where some of the padding/margins within the days, where it is currently unnecessary/affects the printable output to the detriment of UX
 
