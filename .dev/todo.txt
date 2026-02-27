@@ -15,13 +15,13 @@ Pending fixes:
 - [X] Make "Title:" field actually change the displayed title
 - [X] Make "Freeform text to add:" actually be added below the calendar
 - [X] Make date settings control "Custom text:" only be added once.
-- [ ] (2) Solution for issue where some of the padding/margins within the days, where it is currently unnecessary/affects the printable output to the detriment of UX
+- [ ] (3) Solution for issue where some of the padding/margins within the days, where it is currently unnecessary/affects the printable output to the detriment of UX
 
 Featureset:
 - [X] Add an option for padding out days so it makes a table without blank space where there should be cells
 - [X] Add a "Print" button next to "Generate Table" button, to open native print dialog
 - [ ] (3) Add an option to pick which day of the week the schedule starts on (*Sunday*, *Monday*, etc.)
-- [ ] (5) Add options for dose/medication colour-coding, up to user preference (colour-coding would be implemented in the input settings as a list for each medication with each one having a unique colour option; in the output it would be implemented as a small colour-filled bordered square next to the dosage units)
+- [ ] (3) Add options for dose/medication colour-coding, up to user preference (colour-coding would be implemented in the input settings as a list for each medication with each one having a unique colour option; in the output it would be implemented as a small colour-filled bordered square next to the dosage units)
 - [ ] (5) More flexibility with medication/dosing options
 
 Accessibility:
