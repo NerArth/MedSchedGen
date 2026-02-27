@@ -52,11 +52,20 @@ td {
 }
 
 tbody > tr > td {
-    padding: 40px;
-    padding-top: 4px;
-    padding-left: 4px;
+    padding: 6px;
+    vertical-align: top;
     text-align: left;
     font-size: 0.75em;
+    height: 80px; /* Reliable physical size for writing space without awkward text wrapping */
+}
+
+.cell-date {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.cell-dose {
+    margin-bottom: 4px;
 }
 
 .th-weekindicator {
@@ -69,6 +78,7 @@ tbody > tr > td {
 
 .td-weekindicator {
     text-align: center;
+    vertical-align: middle;
     font-size: 6.3mm;
     font-family: monospace;
     padding: initial;

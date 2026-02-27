@@ -220,20 +220,23 @@ function generateWeeklyTables(optionsObject) {
 
                 let determinedDose = Number(options.Dose) + Number(options.DoseIncrement) * Number(doseIteration);
 
+                let dateElement = document.createElement("div");
+                dateElement.className = "cell-date";
                 if (currentDate.getDate() === 1) {
-                    cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.ShortMonth);
+                    dateElement.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.ShortMonth);
                 } else {
-                    cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.Short);
+                    dateElement.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.Short);
                 }
+                cell.appendChild(dateElement);
 
-                let doseIcon = document.createElement("span");
                 // Only add dosage text if there actually is a dose specified
                 if (determinedDose > 0) {
-                    doseIcon.textContent = ` | ${determinedDose}mg`;
+                    let doseElement = document.createElement("div");
+                    doseElement.className = "cell-dose";
+                    doseElement.textContent = `${determinedDose}mg`;
+                    cell.appendChild(doseElement);
                 }
-                doseIcon.className = doseClass;
                 doseCounter++;
-                cell.appendChild(doseIcon);
 
                 currentDate.setDate(currentDate.getDate() + 1);
             } else {
