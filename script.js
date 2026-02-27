@@ -21,6 +21,7 @@
  * @property {string} Title - The title text for the table.
  * @property {boolean} FooterEnabled - Whether the footer text is enabled.
  * @property {string} FooterText - The freeform text for the footer.
+ * @property {boolean} PadWeeks - Whether to pad the final week with empty cells to make a full 7-day row.
  */
 // DateFormat object
 /**
@@ -189,47 +190,57 @@ function generateWeeklyTables(optionsObject) {
             weekValueInjection(periodindicatorCounter, row);
         }
         for (let i = 0; i < 7; i++) {
-            if (doseCounter >= options.DosePeriod) {
-                if (doseIteration < options.DoseIncrementTimes) {
-                    doseIteration++;
-                }
-                doseCounter = 0;
-                //doseClass = "dose-" + doseIteration.toString();
-            }
-
-            let determinedDose = Number(options.Dose) + Number(options.DoseIncrement) * Number(doseIteration);
-
-            if (debug) {
-                console.log(determinedDose);
-                console.log(options.Dose, options.DoseIncrement, doseIteration);
-            }
-
             let cell = document.createElement("td");
-            if (currentDate.getDate() === 1) {
-                cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.ShortMonth);
+
+            if (currentDate <= options.EndDate) {
+                if (doseCounter >= options.DosePeriod) {
+                    if (doseIteration < options.DoseIncrementTimes) {
+                        doseIteration++;
+                    }
+                    doseCounter = 0;
+                    //doseClass = "dose-" + doseIteration.toString();
+                }
+
+                let determinedDose = Number(options.Dose) + Number(options.DoseIncrement) * Number(doseIteration);
+
+                if (debug) {
+                    console.log(determinedDose);
+                    console.log(options.Dose, options.DoseIncrement, doseIteration);
+                }
+
+                if (currentDate.getDate() === 1) {
+                    cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.ShortMonth);
+                } else {
+                    cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.Short);
+                }
+
+                let doseIcon = document.createElement("span");
+                // Only add dosage text if there actually is a dose specified
+                if (determinedDose > 0) {
+                    doseIcon.textContent = ` | ${determinedDose}mg`;
+                }
+                doseIcon.className = doseClass;
+                doseCounter++;
+                cell.appendChild(doseIcon);
+
+                // Move to next day AFTER processing cell content
+                currentDate.setDate(currentDate.getDate() + 1);
+            } else if (options.PadWeeks) {
+                // Padding cell
+                cell.classList.add("td-padding");
+                cell.innerHTML = "&nbsp;"; // Add a non-breaking space to ensure borders render correctly in all browsers
             } else {
-                cell.textContent = currentDate.toLocaleDateString(options.DateLocale, dateFormat.Short);
+                // Not padding, so stop adding cells to this row
+                break;
             }
-            let doseIcon = document.createElement("span");
-            // Only add dosage text if there actually is a dose specified
-            if (determinedDose > 0) {
-                doseIcon.textContent = ` | ${determinedDose}mg`;
-            }
-            doseIcon.className = doseClass;
-            doseCounter++;
-            cell.appendChild(doseIcon);
+
             row.appendChild(cell);
+
             if (i == 6 && periodindicatorDisplayed && !options.SidedWeekNumberingLeft) {
                 console.log("sidedright");
                 periodindicatorCounter++;
                 weekValueInjection(periodindicatorCounter, row);
             }
-
-            // Move to next day
-            currentDate.setDate(currentDate.getDate() + 1);
-
-            // Stop if we exceed the end date
-            if (currentDate > options.EndDate) break;
         }
 
         tbody.appendChild(row);
@@ -319,6 +330,7 @@ function handleInputs() {
         Title: document.getElementById("title").value,
         FooterEnabled: document.getElementById("footer-custom").checked,
         FooterText: document.getElementById("footer-custom-text").value,
+        PadWeeks: document.getElementById("pad-weeks").checked,
     };
 
     generateWeeklyTables(options);
