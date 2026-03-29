@@ -3,7 +3,7 @@
 // Unfortunately, this requires manually updating the documentation if the variable names are changed
 // This is a limitation of the JSDoc system and the way it is implemented in VSCode
 
-/* 
+/*
  * Script Vars
  * @property {Array} DoseUnits - Available dosing units to pick from.
  */
@@ -56,14 +56,18 @@
 
 // INIT
 //  Set default date to today
-document.getElementById("start-date").value = new Date().toISOString().split("T")[0];
-document.getElementById("end-date").value = new Date().toISOString().split("T")[0];
+// document.getElementById("start-date").value = new Date().toISOString().split("T")[0];
+// document.getElementById("end-date").value = new Date().toISOString().split("T")[0];
 
-const DoseUnits = ["mg","g","unit","tblt","cspl","ml","tbsp","tsp"]
+const DoseUnits = () => ["mg", "g", "unit", "tblt", "cspl", "ml", "tbsp", "tsp"];
+
+window.addEventListener("DOMContentLoaded", () => {
+    renderMedicationInputs();
+});
 
 // CLASSES
 /** @type {Object} Medication */
-function Medication(name,dose,doseFrequency,doseIncrement,doseIncrementTimes,dosePeriod,doseUnit) {
+function Medication(name, dose, doseFrequency, doseIncrement, doseIncrementTimes, dosePeriod, doseUnit) {
     // the medication class here is an abstract placeholder prototype to represent a medication. It will be extended with specific properties and methods as needed.
     this.name = name;
     this.dose = dose;
@@ -75,7 +79,7 @@ function Medication(name,dose,doseFrequency,doseIncrement,doseIncrementTimes,dos
     this.doseUnit = doseUnit;
 
     // Additional methods that might be needed for medication scheduling
-    this.getCombinedDosage = function() {
+    this.getCombinedDosage = function () {
         return this.dose * this.doseIntervals;
     };
 }
@@ -107,6 +111,38 @@ function timePeriodOptionChanged() {
         customLabelHTML.forEach((element) => {
             element.style.display = "inline";
         });
+    }
+}
+
+// RENDER MEDICATION INPUTS
+function renderMedicationInputs() {
+    const container = document.getElementById("medications-container");
+    if (!container) return;
+    const count = parseInt(document.getElementById("medications-count").value) || 0;
+    container.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+        const medDiv = document.createElement("div");
+        medDiv.className = "medication-input-group";
+
+        // Build unit options
+        const unitOptions = DoseUnits()
+            .map((unit) => `<option value="${unit}">${unit}</option>`)
+            .join("");
+
+        medDiv.innerHTML = `
+            <strong style="display:block; margin-bottom:5px;">Medication ${i + 1}</strong>
+            <label for="med-name-${i}">Name:</label><input id="med-name-${i}" type="text" placeholder="e.g. Concerta" /><br />
+            <label for="med-dose-${i}">Dosage:</label><input id="med-dose-${i}" type="number" placeholder="n/a" style="width: 60px" />
+            <select id="med-unit-${i}">
+                ${unitOptions}
+            </select><br />
+            <label for="med-freq-${i}">Frequency (times/day):</label><input id="med-freq-${i}" type="number" value="1" min="1" /><br />
+            <label for="med-increment-${i}">Change amount:</label><input id="med-increment-${i}" type="number" placeholder="n/a" /><br />
+            <label for="med-increment-times-${i}"># of dose changes:</label><input id="med-increment-times-${i}" type="number" placeholder="n/a" /><br />
+            <label for="med-period-${i}">Days on each dose:</label><input id="med-period-${i}" type="number" placeholder="n/a" />
+        `;
+        container.appendChild(medDiv);
     }
 }
 
@@ -194,9 +230,7 @@ function generateWeeklyTables(optionsObject) {
     table.appendChild(weekdays);
 
     // Building the table
-    // Dose iterators
-    let doseCounter = 0;
-    let doseIteration = 0;
+    let currentDayOffset = 0;
 
     while (currentDate <= options.EndDate) {
         // If the time period is set to "weekstarting", display the week starting date as a header row
@@ -224,8 +258,6 @@ function generateWeeklyTables(optionsObject) {
             }
         }
 
-        let doseClass = "dose-0"; // currently unused
-
         // Table Body (Days)
         let tbody = document.createElement("tbody");
         let row = document.createElement("tr");
@@ -252,15 +284,6 @@ function generateWeeklyTables(optionsObject) {
                 cell.innerHTML = "&nbsp;";
                 leadingPadding--;
             } else if (currentDate <= options.EndDate) {
-                if (doseCounter >= options.DosePeriod) {
-                    if (doseIteration < options.DoseIncrementTimes) {
-                        doseIteration++;
-                    }
-                    doseCounter = 0;
-                }
-
-                let determinedDose = Number(options.Dose) + Number(options.DoseIncrement) * Number(doseIteration);
-
                 let dateElement = document.createElement("div");
                 dateElement.className = "cell-date";
                 if (currentDate.getDate() === 1) {
@@ -270,15 +293,46 @@ function generateWeeklyTables(optionsObject) {
                 }
                 cell.appendChild(dateElement);
 
-                // Only add dosage text if there actually is a dose specified
-                if (determinedDose > 0) {
-                    let doseElement = document.createElement("div");
-                    doseElement.className = "cell-dose";
-                    doseElement.textContent = `${determinedDose}mg`;
-                    cell.appendChild(doseElement);
-                }
-                doseCounter++;
+                // Add medications dosages
+                if (options.Medications && options.Medications.length > 0) {
+                    options.Medications.forEach((med) => {
+                        let iteration = 0;
+                        if (med.dosePeriod > 0) {
+                            iteration = Math.floor(currentDayOffset / med.dosePeriod);
+                            if (iteration > med.doseIncrementTimes) {
+                                iteration = med.doseIncrementTimes;
+                            }
+                        }
 
+                        let determinedDose = Number(med.dose) + Number(med.doseIncrement) * iteration;
+
+                        if (determinedDose > 0 || med.name) {
+                            let doseElement = document.createElement("div");
+                            doseElement.className = "cell-dose";
+                            let text = "";
+                            if (med.name) text += `<strong>${med.name}</strong>: `;
+                            if (determinedDose > 0) {
+                                text += `${determinedDose}${med.doseUnit}`;
+                            }
+                            if (med.doseFrequency > 1) {
+                                text += ` (${med.doseFrequency}x/day)`;
+                            }
+                            doseElement.innerHTML = text;
+                            cell.appendChild(doseElement);
+
+                            let freq = Number(med.doseFrequency) || 1;
+                            let linesToDraw = freq > 1 ? freq : 1; // You previously had freq - 1, but this would result in 1 line for both freq=1 and freq=2.
+
+                            for (let i = 0; i < linesToDraw; i++) {
+                                let handwritingElement = document.createElement("div");
+                                handwritingElement.className = "cell-handwriting";
+                                cell.appendChild(handwritingElement);
+                            }
+                        }
+                    });
+                }
+
+                currentDayOffset++;
                 currentDate.setDate(currentDate.getDate() + 1);
             } else {
                 // Trailing padding cell
@@ -338,23 +392,26 @@ function handleInputs() {
     const timePeriodDisplayInput = document.getElementById("timeperiod-options").value;
     const sidedWeekNumberingInput = document.getElementById("timeperiod-sidedweek-side").checked;
 
-    // dosage inputs
-    const doseInput = document.getElementById("dose").value;
-    const doseIncrementInput = document.getElementById("dose-increment").value;
+    // medications input collection
+    const count = parseInt(document.getElementById("medications-count").value) || 0;
+    const medications = [];
 
-    // dosage time inputs
-    const doseIncrementTimesInput = document.getElementById("dose-increment-times").value;
-    const dosePeriodInput = document.getElementById("dose-period").value;
+    for (let i = 0; i < count; i++) {
+        let name = document.getElementById(`med-name-${i}`)?.value || "";
+        let dose = document.getElementById(`med-dose-${i}`)?.value || 0;
+        let unit = document.getElementById(`med-unit-${i}`)?.value || "mg";
+        let freq = document.getElementById(`med-freq-${i}`)?.value || 1;
+        let inc = document.getElementById(`med-increment-${i}`)?.value || 0;
+        let incTimes = document.getElementById(`med-increment-times-${i}`)?.value || 0;
+        let period = document.getElementById(`med-period-${i}`)?.value || 0;
+
+        medications.push(new Medication(name, dose, freq, inc, incTimes, period, unit));
+    }
 
     if (!startDateInput || !endDateInput) {
         alert("Please select both start and end dates.");
         return;
     }
-
-    const dose = doseInput || 0;
-    const doseIncrement = doseIncrementInput || 0;
-    const doseIncrementTimes = doseIncrementTimesInput || 0;
-    const dosePeriod = dosePeriodInput || 0;
 
     const startDate = new Date(startDateInput);
     const endDate = new Date(endDateInput);
@@ -372,10 +429,7 @@ function handleInputs() {
         TimePeriod: timePeriodDisplayInput,
         SidedWeekNumberingLeft: sidedWeekNumberingInput,
 
-        Dose: dose,
-        DoseIncrement: doseIncrement,
-        DoseIncrementTimes: doseIncrementTimes,
-        DosePeriod: dosePeriod,
+        Medications: medications,
 
         StartDate: startDate,
         EndDate: endDate,

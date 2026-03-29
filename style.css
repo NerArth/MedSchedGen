@@ -68,6 +68,12 @@ tbody > tr > td {
     margin-bottom: 4px;
 }
 
+.cell-handwriting {
+    margin-bottom: 4px;
+    height:14px;
+    border-bottom: 1px dashed darkgrey;
+}
+
 .th-weekindicator {
     text-align: center;
     font-size: 4mm;
@@ -124,6 +130,13 @@ tbody > tr > td {
     border-style: solid;
     border-color: black;
     }*/
+
+.medication-input-group {
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+    margin-top: 5px;
+}
+
 input:placeholder-shown {
     background-color: #ededed;
 }
