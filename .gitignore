@@ -1,5 +1,6 @@
 # Ignore any default content within releases directories.
 !releases/
 releases/**
-!dist/
-dist/**
+dist/
+node_modules/
+package-lock.json
