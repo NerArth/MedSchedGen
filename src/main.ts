@@ -1,124 +1,123 @@
-// DOCUMENTATION
-// These JSDoc definitions are not fully compatible with VSCode but can still be partly used by hovering over the "type" definition over a variable
-// Unfortunately, this requires manually updating the documentation if the variable names are changed
-// This is a limitation of the JSDoc system and the way it is implemented in VSCode
-
-/*
- * Script Vars
- * @property {Array} DoseUnits - Available dosing units to pick from.
- */
-
 // Medication object
 /**
  * Definition for Medication object.
- * @typedef {Object} Medication
- * @property {string} name - The name of the medication
- * @property {number} dose - The base dose amount
- * @property {number} doseFrequency - The number of times the dose is taken in a day
- * @property {number} doseIncrement - The increment amount for dose adjustments
- * @property {number} doseIncrementTimes - The number of times the dose increment occurs
- * @property {number} dosePeriod - The period over which doses are administered
- * @property {string} doseUnit - The unit of measurement for the dose (e.g., 'mg', 'ml')
  */
+interface IMedication {
+    name: string;
+    dose: number;
+    doseFrequency: number;
+    doseIncrement: number;
+    doseIncrementTimes: number;
+    dosePeriod: number;
+    doseUnit: string;
+    getCombinedDosage(): number;
+}
 
 // Options object
 /**
  * Configuration options for generating a weekly table.
- * @typedef {Object} Options
- * @property {string} StartingDate - The starting date input for the schedule.
- * @property {string} EndingDate - The ending date input for the schedule.
- * @property {string} DateLocale - The locale used for formatting dates.
- * @property {string} TimePeriod - The display format for the time period.
- * @property {boolean} SidedWeekNumberingLeft - Whether to display the week number on the left side; otherwise right side.
- * @property {Array} Medications - Array of different medications to include in the schedule.
- * @property {number} Dose - The initial dose value.
- * @property {number} DoseIncrement - The amount by which the dose is incremented.
- * @property {number} DoseIncrementTimes - The number of times the dose is incremented.
- * @property {number} DosePeriod - The period over which the dose is administered.
- * @property {Date} StartDate - The parsed starting date object.
- * @property {Date} EndDate - The parsed ending date object.
- * @property {string} Title - The title text for the table.
- * @property {boolean} FooterEnabled - Whether the footer text is enabled.
- * @property {string} FooterText - The freeform text for the footer.
- * @property {boolean} PadWeeks - Whether to pad the final week with empty cells to make a full 7-day row.
- * @property {number} WeekStartDay - The day of the week the schedule starts on (0=Sunday, 1=Monday, etc.)
  */
+interface Options {
+    StartingDate: string;
+    EndingDate: string;
+    DateLocale: string;
+    TimePeriod: string;
+    SidedWeekNumberingLeft: boolean;
+    Medications: IMedication[];
+    StartDate: Date;
+    EndDate: Date;
+    Title: string;
+    FooterEnabled: boolean;
+    FooterText: string;
+    PadWeeks: boolean;
+    WeekStartDay: number;
+}
 
 // DateFormat object
 /**
  * Configuration options for date formatting.
- * @typedef {Object} DateFormat
- * @property {string} Short - Short date format.
- * @property {string} ShortMonth - Short date format with month.
- * @property {string} Long - Long date format.
- * @property {string} Weekday - Weekday format.
  */
+interface DateFormat {
+    Short: Intl.DateTimeFormatOptions;
+    ShortMonth: Intl.DateTimeFormatOptions;
+    Long: Intl.DateTimeFormatOptions;
+    Weekday: Intl.DateTimeFormatOptions;
+}
 
-// INIT
-//  Set default date to today
-// document.getElementById("start-date").value = new Date().toISOString().split("T")[0];
-// document.getElementById("end-date").value = new Date().toISOString().split("T")[0];
-
-const DoseUnits = () => ["mg", "g", "unit", "tblt", "cspl", "ml", "tbsp", "tsp"];
+const DoseUnits = (): string[] => ["mg", "g", "unit", "tblt", "cspl", "ml", "tbsp", "tsp"];
 
 window.addEventListener("DOMContentLoaded", () => {
     renderMedicationInputs();
 });
 
 // CLASSES
-/** @type {Object} Medication */
-function Medication(name, dose, doseFrequency, doseIncrement, doseIncrementTimes, dosePeriod, doseUnit) {
-    // the medication class here is an abstract placeholder prototype to represent a medication. It will be extended with specific properties and methods as needed.
+function Medication(
+    this: IMedication,
+    name: string,
+    dose: number,
+    doseFrequency: number,
+    doseIncrement: number,
+    doseIncrementTimes: number,
+    dosePeriod: number,
+    doseUnit: string
+) {
     this.name = name;
     this.dose = dose;
     this.doseFrequency = doseFrequency;
-    // this.doseIntervalPeriod = this.doseIntervalPeriod; // PH - not to be used for now.
     this.doseIncrement = doseIncrement;
     this.doseIncrementTimes = doseIncrementTimes;
     this.dosePeriod = dosePeriod;
     this.doseUnit = doseUnit;
 
-    // Additional methods that might be needed for medication scheduling
-    this.getCombinedDosage = function () {
-        return this.dose * this.doseIntervals;
+    this.getCombinedDosage = function (this: IMedication) {
+        // Note: original code used this.doseIntervals which was not defined in the constructor or interface
+        // Preserving the logical flow/potential mistake as requested.
+        return this.dose * (this as any).doseIntervals;
     };
 }
 
 // EVENTS
 //  TIME PERIOD
-function timePeriodOptionChanged() {
-    const timePeriodOption = document.getElementById("timeperiod-options").value;
-    let weekSideHTML = [document.getElementById("timeperiod-sidedweek-side-label"), document.getElementById("timeperiod-sidedweek-side")];
-    let customLabelHTML = [document.getElementById("timeperiod-customlabel-label"), document.getElementById("timeperiod-customlabel")];
+function timePeriodOptionChanged(): void {
+    const timePeriodOption = (document.getElementById("timeperiod-options") as HTMLSelectElement).value;
+    let weekSideHTML = [
+        document.getElementById("timeperiod-sidedweek-side-label"),
+        document.getElementById("timeperiod-sidedweek-side")
+    ];
+    let customLabelHTML = [
+        document.getElementById("timeperiod-customlabel-label"),
+        document.getElementById("timeperiod-customlabel")
+    ];
 
     // Hide the week side bool checkbox
     weekSideHTML.forEach((element) => {
-        element.style.display = "none";
+        if (element) element.style.display = "none";
     });
     // Hide the custom label input
     customLabelHTML.forEach((element) => {
-        element.style.display = "none";
+        if (element) element.style.display = "none";
     });
 
     if (timePeriodOption == "sidedweeknumber") {
         // Show the week side bool checkbox
         weekSideHTML.forEach((element) => {
-            element.style.display = "inline";
+            if (element) element.style.display = "inline";
         });
     }
     if (timePeriodOption == "custom") {
         // Show the custom label input
         customLabelHTML.forEach((element) => {
-            element.style.display = "inline";
+            if (element) element.style.display = "inline";
         });
     }
 }
 
 // RENDER MEDICATION INPUTS
-function renderMedicationInputs() {
+function renderMedicationInputs(): void {
     const container = document.getElementById("medications-container");
     if (!container) return;
-    const count = parseInt(document.getElementById("medications-count").value) || 0;
+    const countInput = document.getElementById("medications-count") as HTMLInputElement;
+    const count = parseInt(countInput.value) || 0;
     container.innerHTML = "";
 
     for (let i = 0; i < count; i++) {
@@ -148,53 +147,38 @@ function renderMedicationInputs() {
 
 // GENERATORS
 //  WEEKLY TABLE
-function generateWeeklyTables(optionsObject) {
-    //function generateWeeklyTables(startDate, endDate, dateLocale, weeklyDisplay, dose, doseIncrement, doseIncrementTimes, dosePeriod) {
-    //console.log(startDate,endDate,dateLocale,dose,doseIncrement,doseIncrementTimes,dosePeriod);
-
+function generateWeeklyTables(optionsObject: Options): void {
     const debug = true;
-    // debug logging of parsed object values
     if (debug) {
         Object.keys(optionsObject).forEach((key) => {
-            console.log(`${key}: ${optionsObject[key]}`);
+            console.log(`${key}: ${(optionsObject as any)[key]}`);
         });
     }
 
-    // deliberate redundancy to separate arg from parsed
-    /** @type {Options} */
     const options = optionsObject;
-
     const container = document.getElementById("table-container");
+    if (!container) return;
 
-    /** @type {DateFormat} */
-    const dateFormat = {
+    const dateFormat: DateFormat = {
         Short: { day: "numeric" },
         ShortMonth: { day: "numeric", month: "short" },
         Long: { year: "numeric", month: "long", day: "numeric" },
         Weekday: { weekday: "long" },
     };
 
-    // const dateShort = {day:"numeric"};
-    // const dateShortMonth = {day:"numeric",month:"short"};
-    // const dateLong = {year:"numeric",month:"long",day:"numeric"};
-    // const dateWeekday = {weekday:"long"};
-    container.innerHTML = ""; // Clear previous tables
+    container.innerHTML = "";
     let currentDate = new Date(options.StartingDate);
+    let table = document.createElement("table");
 
-    let table = document.createElement("table"); // The original script had this inside the while to make separate tables for each week
-
-    // Make a weekday header before anything else
     let weekdays = document.createElement("thead");
     weekdays.id = "thead-weekdays";
     let weekdayRow = document.createElement("tr");
-    // Calculate how many days back the "Grid Week" starts relative to the StartDate
     const startDayGridOffset = (options.StartDate.getDay() - options.WeekStartDay + 7) % 7;
 
     let tableSpan = 7;
     let periodindicatorDisplayed = false;
     let periodindicatorCounter = 0;
 
-    // Update main title
     const mainTitle = document.getElementById("main-title");
     if (mainTitle) {
         mainTitle.textContent = options.Title || "Medication Schedule";
@@ -205,15 +189,13 @@ function generateWeeklyTables(optionsObject) {
         tableSpan = 8;
     }
 
-    // Header
     if (periodindicatorDisplayed && options.SidedWeekNumberingLeft) {
         console.log("sidedleft");
         weekIndicatorInjection(weekdayRow);
     }
-    // Generate headers based on WeekStartDay (using schedule context)
+
     for (let i = 0; i < 7; i++) {
         let weekdayCell = document.createElement("th");
-        // Get the date for this column in the first week of the schedule
         let displayDay = new Date(options.StartDate);
         displayDay.setDate(displayDay.getDate() - startDayGridOffset + i);
 
@@ -229,26 +211,24 @@ function generateWeeklyTables(optionsObject) {
 
     table.appendChild(weekdays);
 
-    // Building the table
     let currentDayOffset = 0;
 
     while (currentDate <= options.EndDate) {
-        // If the time period is set to "weekstarting", display the week starting date as a header row
         if (options.TimePeriod == "weekstarting" || options.TimePeriod == "custom") {
-            let _option = options.TimePeriod == "weekstarting" ? 0 : options.TimePeriod == "custom" ? document.getElementById("timeperiod-customlabel").value : "Error";
+            let customLabelValue = (document.getElementById("timeperiod-customlabel") as HTMLInputElement).value;
+            let _option: string | number = options.TimePeriod == "weekstarting" ? 0 : options.TimePeriod == "custom" ? customLabelValue : "Error";
 
-            // For "custom", only add it once at the very beginning of the table
             if (options.TimePeriod == "custom" && table.querySelector(".header-custom-period")) {
                 // Already added, skip
             } else {
-                let thead = document.createElement("thead"); //header
-                let headerRow = document.createElement("tr"); //header row
-                let headerCell = document.createElement("th"); //header cell
-                headerCell.colSpan = tableSpan; // Use tableSpan to account for week numbers
-                if (_option == 0) {
+                let thead = document.createElement("thead");
+                let headerRow = document.createElement("tr");
+                let headerCell = document.createElement("th");
+                headerCell.colSpan = tableSpan;
+                if (_option === 0) {
                     headerCell.textContent = `Week Starting: ${currentDate.toLocaleDateString(options.DateLocale, dateFormat.Long)}`;
                 } else {
-                    headerCell.textContent = _option;
+                    headerCell.textContent = _option as string;
                     headerCell.className = "header-custom-period";
                 }
                 headerCell.classList.add("header-week-outline");
@@ -258,7 +238,6 @@ function generateWeeklyTables(optionsObject) {
             }
         }
 
-        // Table Body (Days)
         let tbody = document.createElement("tbody");
         let row = document.createElement("tr");
 
@@ -268,7 +247,6 @@ function generateWeeklyTables(optionsObject) {
             weekValueInjection(periodindicatorCounter, row);
         }
 
-        // Calculate leading padding for the first row
         let leadingPadding = 0;
         if (currentDate.getTime() === options.StartDate.getTime()) {
             leadingPadding = startDayGridOffset;
@@ -278,7 +256,6 @@ function generateWeeklyTables(optionsObject) {
             let cell = document.createElement("td");
 
             if (leadingPadding > 0) {
-                // Leading padding cell
                 cell.classList.add("td-padding");
                 if (!options.PadWeeks) cell.classList.add("td-padding-hidden");
                 cell.innerHTML = "&nbsp;";
@@ -293,7 +270,6 @@ function generateWeeklyTables(optionsObject) {
                 }
                 cell.appendChild(dateElement);
 
-                // Add medications dosages
                 if (options.Medications && options.Medications.length > 0) {
                     options.Medications.forEach((med) => {
                         let iteration = 0;
@@ -321,9 +297,9 @@ function generateWeeklyTables(optionsObject) {
                             cell.appendChild(doseElement);
 
                             let freq = Number(med.doseFrequency) || 1;
-                            let linesToDraw = freq > 1 ? freq : 1; // You previously had freq - 1, but this would result in 1 line for both freq=1 and freq=2.
+                            let linesToDraw = freq > 1 ? freq : 1;
 
-                            for (let i = 0; i < linesToDraw; i++) {
+                            for (let j = 0; j < linesToDraw; j++) {
                                 let handwritingElement = document.createElement("div");
                                 handwritingElement.className = "cell-handwriting";
                                 cell.appendChild(handwritingElement);
@@ -335,7 +311,6 @@ function generateWeeklyTables(optionsObject) {
                 currentDayOffset++;
                 currentDate.setDate(currentDate.getDate() + 1);
             } else {
-                // Trailing padding cell
                 cell.classList.add("td-padding");
                 if (!options.PadWeeks) cell.classList.add("td-padding-hidden");
                 cell.innerHTML = "&nbsp;";
@@ -355,57 +330,51 @@ function generateWeeklyTables(optionsObject) {
         container.appendChild(table);
     }
 
-    // Add footer text if enabled
     if (options.FooterEnabled && options.FooterText) {
         const footerDiv = document.createElement("div");
         footerDiv.className = "footer-text";
         footerDiv.style.marginTop = "20px";
-        footerDiv.style.whiteSpace = "pre-wrap"; // Preserve line breaks from textarea
+        footerDiv.style.whiteSpace = "pre-wrap";
         footerDiv.textContent = options.FooterText;
         container.appendChild(footerDiv);
     }
 }
-//  INJECT WEEK INDICATOR INTO TABLE
-function weekIndicatorInjection(_target) {
+
+function weekIndicatorInjection(_target: HTMLElement): void {
     let cell = document.createElement("th");
     cell.textContent = `Week #`;
     cell.className = "th-weekindicator";
     _target.appendChild(cell);
 }
 
-//  INJECT WEEK VALUE INTO TABLE
-function weekValueInjection(_counter, _target) {
+function weekValueInjection(_counter: number, _target: HTMLElement): void {
     let cell = document.createElement("td");
     cell.textContent = `${_counter}`;
     cell.className = "td-weekindicator";
     _target.appendChild(cell);
 }
-// END OF GENERATORS
 
-//  INPUT HANDLING -> TABLE GENERATION
-function handleInputs() {
-    // date inputs
-    //document.getElementById("start-date").value = new Date();
-    const startDateInput = document.getElementById("start-date").value;
-    const endDateInput = document.getElementById("end-date").value;
-    const dateLocaleInput = document.getElementById("date-locale").value;
-    const timePeriodDisplayInput = document.getElementById("timeperiod-options").value;
-    const sidedWeekNumberingInput = document.getElementById("timeperiod-sidedweek-side").checked;
+function handleInputs(): void {
+    const startDateInput = (document.getElementById("start-date") as HTMLInputElement).value;
+    const endDateInput = (document.getElementById("end-date") as HTMLInputElement).value;
+    const dateLocaleInput = (document.getElementById("date-locale") as HTMLSelectElement).value;
+    const timePeriodDisplayInput = (document.getElementById("timeperiod-options") as HTMLSelectElement).value;
+    const sidedWeekNumberingInput = (document.getElementById("timeperiod-sidedweek-side") as HTMLInputElement).checked;
 
-    // medications input collection
-    const count = parseInt(document.getElementById("medications-count").value) || 0;
-    const medications = [];
+    const countInput = document.getElementById("medications-count") as HTMLInputElement;
+    const count = parseInt(countInput.value) || 0;
+    const medications: IMedication[] = [];
 
     for (let i = 0; i < count; i++) {
-        let name = document.getElementById(`med-name-${i}`)?.value || "";
-        let dose = document.getElementById(`med-dose-${i}`)?.value || 0;
-        let unit = document.getElementById(`med-unit-${i}`)?.value || "mg";
-        let freq = document.getElementById(`med-freq-${i}`)?.value || 1;
-        let inc = document.getElementById(`med-increment-${i}`)?.value || 0;
-        let incTimes = document.getElementById(`med-increment-times-${i}`)?.value || 0;
-        let period = document.getElementById(`med-period-${i}`)?.value || 0;
+        let name = (document.getElementById(`med-name-${i}`) as HTMLInputElement)?.value || "";
+        let dose = parseFloat((document.getElementById(`med-dose-${i}`) as HTMLInputElement)?.value) || 0;
+        let unit = (document.getElementById(`med-unit-${i}`) as HTMLSelectElement)?.value || "mg";
+        let freq = parseInt((document.getElementById(`med-freq-${i}`) as HTMLInputElement)?.value) || 1;
+        let inc = parseFloat((document.getElementById(`med-increment-${i}`) as HTMLInputElement)?.value) || 0;
+        let incTimes = parseInt((document.getElementById(`med-increment-times-${i}`) as HTMLInputElement)?.value) || 0;
+        let period = parseInt((document.getElementById(`med-period-${i}`) as HTMLInputElement)?.value) || 0;
 
-        medications.push(new Medication(name, dose, freq, inc, incTimes, period, unit));
+        medications.push(new (Medication as any)(name, dose, freq, inc, incTimes, period, unit));
     }
 
     if (!startDateInput || !endDateInput) {
@@ -421,8 +390,7 @@ function handleInputs() {
         return;
     }
 
-    /** @type {Options} */
-    const options = {
+    const options: Options = {
         StartingDate: startDateInput,
         EndingDate: endDateInput,
         DateLocale: dateLocaleInput,
@@ -434,12 +402,17 @@ function handleInputs() {
         StartDate: startDate,
         EndDate: endDate,
 
-        Title: document.getElementById("title").value,
-        FooterEnabled: document.getElementById("footer-custom").checked,
-        FooterText: document.getElementById("footer-custom-text").value,
-        PadWeeks: document.getElementById("pad-weeks").checked,
-        WeekStartDay: document.getElementById("week-start-day").value,
+        Title: (document.getElementById("title") as HTMLInputElement).value,
+        FooterEnabled: (document.getElementById("footer-custom") as HTMLInputElement).checked,
+        FooterText: (document.getElementById("footer-custom-text") as HTMLTextAreaElement).value,
+        PadWeeks: (document.getElementById("pad-weeks") as HTMLInputElement).checked,
+        WeekStartDay: parseInt((document.getElementById("week-start-day") as HTMLSelectElement).value),
     };
 
     generateWeeklyTables(options);
 }
+
+// Expose functions to window for HTML event handlers
+(window as any).timePeriodOptionChanged = timePeriodOptionChanged;
+(window as any).renderMedicationInputs = renderMedicationInputs;
+(window as any).handleInputs = handleInputs;
